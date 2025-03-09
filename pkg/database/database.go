@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"os"
 
+	"dribbble-clone-be/internal/auth"
+	"dribbble-clone-be/internal/profile"
+	"dribbble-clone-be/internal/shot"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"your-module/internal/auth"
-	"your-module/internal/profile"
-	"your-module/internal/shot"
 )
 
 func InitDB() (*gorm.DB, error) {
@@ -32,4 +33,4 @@ func InitDB() (*gorm.DB, error) {
 	}
 
 	return db, nil
-} 
+}

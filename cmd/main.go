@@ -2,17 +2,22 @@ package main
 
 import (
 	"log"
-	"net/http"
+
+	"dribbble-clone-be/internal/auth"
+	"dribbble-clone-be/internal/middleware"
+	"dribbble-clone-be/internal/profile"
+	"dribbble-clone-be/internal/shot"
+	"dribbble-clone-be/pkg/database"
 
 	"github.com/gin-gonic/gin"
-	"your-module/internal/auth"
-	"your-module/internal/profile"
-	"your-module/internal/shot"
-	"your-module/internal/middleware"
-	"your-module/pkg/database"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file:", err)
+	}
 	// Initialize DB
 	db, err := database.InitDB()
 	if err != nil {
@@ -43,4 +48,4 @@ func main() {
 	}
 
 	log.Fatal(router.Run(":8080"))
-} 
+}
