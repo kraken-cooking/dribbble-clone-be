@@ -1,0 +1,27 @@
+├── cmd
+│   └── main.go
+├── internal
+│   ├── auth
+│   │   ├── handler.go
+│   │   ├── model.go
+│   │   └── service.go
+│   ├── profile
+│   │   ├── handler.go
+│   │   ├── model.go
+│   │   └── service.go
+│   ├── shot
+│   │   ├── handler.go
+│   │   ├── model.go
+│   │   └── service.go
+│   └── middleware
+│       └── auth_middleware.go
+├── pkg
+│   ├── database
+│   │   └── database.go
+│   └── utils
+│       ├── jwt.go
+│       └── password.go
+├── config
+│   └── config.go
+├── go.mod
+└── .env 
