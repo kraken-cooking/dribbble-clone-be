@@ -44,20 +44,19 @@ func main() {
 
 	// Public routes
 	router.GET("/shots/:id", shotHandler.GetShot)
+	router.GET("/shots", shotHandler.GetShots)
 
 	// Protected routes
 	protected := router.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
 		// Profile routes
-
 		protected.GET("/profile", profileHandler.GetProfile)
 		protected.PUT("/profile", profileHandler.UpdateProfile)
 
 		// Shot routes
 		shotHandler := shot.NewHandler(db)
 		protected.POST("/shots", shotHandler.UploadShot)
-		protected.GET("/shots", shotHandler.GetShots)
 
 		// Upload routes
 		protected.POST("/upload", uploadHandler.UploadImage)
