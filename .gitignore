@@ -52,3 +52,6 @@ tmp/
 
 # Debug files
 __debug_bin 
+
+
+/uploads/*

@@ -2,11 +2,13 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"dribbble-clone-be/internal/auth"
 	"dribbble-clone-be/internal/middleware"
 	"dribbble-clone-be/internal/profile"
 	"dribbble-clone-be/internal/shot"
+	"dribbble-clone-be/internal/upload"
 	"dribbble-clone-be/pkg/database"
 
 	"github.com/gin-gonic/gin"
@@ -26,17 +28,29 @@ func main() {
 
 	router := gin.Default()
 
+	// Serve static files
+	os.MkdirAll("uploads/images", 0755)
+	router.Static("/uploads", "./uploads")
+
 	// Auth routes
 	authHandler := auth.NewHandler(db)
 	router.POST("/auth/signup", authHandler.Signup)
 	router.POST("/auth/login", authHandler.Login)
+
+	// handlers
+	shotHandler := shot.NewHandler(db)
+	profileHandler := profile.NewHandler(db)
+	uploadHandler := upload.NewHandler()
+
+	// Public routes
+	router.GET("/shots/:id", shotHandler.GetShot)
 
 	// Protected routes
 	protected := router.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
 		// Profile routes
-		profileHandler := profile.NewHandler(db)
+
 		protected.GET("/profile", profileHandler.GetProfile)
 		protected.PUT("/profile", profileHandler.UpdateProfile)
 
@@ -44,7 +58,9 @@ func main() {
 		shotHandler := shot.NewHandler(db)
 		protected.POST("/shots", shotHandler.UploadShot)
 		protected.GET("/shots", shotHandler.GetShots)
-		protected.GET("/shots/:id", shotHandler.GetShot)
+
+		// Upload routes
+		protected.POST("/upload", uploadHandler.UploadImage)
 	}
 
 	log.Fatal(router.Run(":8080"))

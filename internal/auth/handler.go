@@ -4,9 +4,11 @@ import (
 	"net/http"
 	"time"
 
+	"dribbble-clone-be/internal/profile"
+	"dribbble-clone-be/pkg/utils"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"dribbble-clone-be/pkg/utils"
 )
 
 type Handler struct {
@@ -20,7 +22,7 @@ func NewHandler(db *gorm.DB) *Handler {
 func (h *Handler) Signup(c *gin.Context) {
 	var req SignupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid format"})
 		return
 	}
 
@@ -51,9 +53,8 @@ func (h *Handler) Signup(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
 	}
-
 	// Create profile for the user
-	profile := Profile{
+	profile := profile.Profile{
 		UserID:    user.ID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -86,10 +87,59 @@ func (h *Handler) Signup(c *gin.Context) {
 func (h *Handler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid format"})
 		return
 	}
 
-	// TODO: Implement login logic
-	c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
-} 
+	// Find user by email
+	var user User
+	if result := h.db.Where("email = ?", req.Email).First(&user); result.Error != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status": "error",
+			"error": map[string]interface{}{
+				"message": "Login failed",
+				"details": "Invalid email or password",
+			},
+		})
+		return
+	}
+
+	// Check password
+	if !utils.CheckPasswordHash(req.Password, user.Password) {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status": "error",
+			"error": map[string]interface{}{
+				"message": "Login failed",
+				"details": "Invalid email or password",
+			},
+		})
+		return
+	}
+
+	// Generate JWT token
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error": map[string]interface{}{
+				"message": "Login failed",
+				"details": "Error generating authentication token",
+			},
+		})
+		return
+	}
+
+	// Return success response
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Login successful",
+		"data": gin.H{
+			"token": token,
+			"user": gin.H{
+				"id":       user.ID,
+				"username": user.Username,
+				"email":    user.Email,
+			},
+		},
+	})
+}
