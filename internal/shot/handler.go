@@ -71,7 +71,7 @@ func (h *Handler) UploadShot(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Shot created successfully",
-		"shot":    response,
+		"data":    response,
 	})
 }
 
@@ -159,8 +159,8 @@ func (h *Handler) GetShots(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":    "Shots retrieved successfully",
-		"pagination": response,
+		"message": "Shots retrieved successfully",
+		"data":    response,
 	})
 }
 

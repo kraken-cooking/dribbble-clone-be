@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"dribbble-clone-be/pkg/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -61,4 +62,4 @@ func GetUserID(c *gin.Context) (uint, bool) {
 	}
 
 	return id, true
-} 
+}
